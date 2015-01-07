@@ -134,15 +134,27 @@ class Handler:
         data = (self.client_buffer[:end+1]).split()
         if len(data)<3 :
             thread.exit_thread()
-        #print '===', data, '===', data[0], '===', data[1], '===', data[2], '===' 
         self.client_buffer = self.client_buffer[end+1:]
         self.method, self.path, self.protocol = data
-        #print self.method, self.path, self.protocol, self.i
-        #if self.method=='CONNECT':
-        #    self.method_CONNECT()
-        elif self.method in ('OPTIONS', 'GET', 'HEAD', 'POST', 'PUT',
+        if self.path == "" :
+            #debug_url
+            return
+        elif self.reg.match(self.path):
+            #debug_it()
+        self.path = self.path[7:]
+        i = self.path.find('/')
+        host = self.path[:i]        
+        path = self.path[i:]
+        if self.method in ('OPTIONS', 'GET', 'HEAD', 'POST', 'PUT',
                 'DELETE', 'TRACE'):
-            self.method_others()
+            self.do_proxy()
+
+
+    def do_proxy(self):
+
+
+
+
  
  
 
