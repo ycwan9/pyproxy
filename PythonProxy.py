@@ -155,6 +155,11 @@ class Handler:
         port = host[i+1:]
         host = host[:i]
         host = socket.gethostbyname(host)
+        nport = 80
+        if port != '':
+            nport = int(port)
+        ser = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ser.connect((host,nport))
 
 
 
