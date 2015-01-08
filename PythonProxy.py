@@ -144,13 +144,19 @@ class Handler:
         self.path = self.path[7:]
         i = self.path.find('/')
         host = self.path[:i]        
-        path = self.path[i:]
+        self.path = self.path[i:]
         if self.method in ('OPTIONS', 'GET', 'HEAD', 'POST', 'PUT',
                 'DELETE', 'TRACE'):
-            self.do_proxy()
+            self.do_proxy(host)
 
 
-    def do_proxy(self):
+    def do_proxy(self,host):
+        i = host.find(':')
+        port = host[i+1:]
+        host = host[:i]
+        host = socket.gethostbyname(host)
+
+
 
 
 
