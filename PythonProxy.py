@@ -123,15 +123,18 @@ class Handler:
             print '%i==%i start'%(self.a, self.i)
             while 1:
                 data = self.client.recv(BUFLEN)
-                self.client_buffer += self.data
+                self.client_buffer += data
+                print data
                 if len(data)!=BUFLEN:
                     break
-                self.proxy_it()
-                self.client_buffer = ''
+            self.proxy_it()
+            self.client_buffer = ''
+            self.server_buffer = ''
 
     def proxy_it(self):
         end = self.client_buffer.find('\n')
         data = (self.client_buffer[:end+1]).split()
+        print data
         if len(data)<3 :
             thread.exit_thread()
         self.client_buffer = self.client_buffer[end+1:]
@@ -141,27 +144,35 @@ class Handler:
             return
         elif self.reg.match(self.path):
             #debug_it()
+            return
         self.path = self.path[7:]
+        print self.path
         i = self.path.find('/')
         host = self.path[:i]        
         self.path = self.path[i:]
         if self.method in ('OPTIONS', 'GET', 'HEAD', 'POST', 'PUT',
                 'DELETE', 'TRACE'):
             self.do_proxy(host)
+            self.client.send(self.server_buffer)
 
 
     def do_proxy(self,host):
         i = host.find(':')
-        port = host[i+1:]
-        host = host[:i]
+        if i == -1 :
+            port = 80
+        else :
+            port = host[i+1:]
+            host = host[:i]
+            port = int(port)
         host = socket.gethostbyname(host)
-        nport = 80
-        if port != '':
-            nport = int(port)
         ser = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        ser.connect((host,nport))
-
-
+        ser.connect((host,port))
+        ser.send("%s %s %s\r\n"%(self.method,self.path,self.protocol)+self.client_buffer)
+        while 1:
+            data = ser.recv(BUFLEN)
+            self.server_buffer += data
+            if len(data)!=BUFLEN:
+                break
 
 
 
@@ -174,7 +185,7 @@ class Handler:
 
 
 def start_server(host='localhost', port=8080, IPv6=False, timeout=60,
-                  handler=ConnectionHandler):
+                  handler=Handler):
     if IPv6==True:
         soc_type=socket.AF_INET6
     else:
