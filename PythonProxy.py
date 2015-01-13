@@ -5,20 +5,12 @@ import re
 import sys
 import httplib
 import SocketServer
+import toHex
 
 __version__ = '0.1.0 Draft 1'
 BUFLEN = 8192
 VERSION = 'Python Proxy/'+__version__
 HTTPVER = 'HTTP/1.1'
-
-def toHex(s):
-    lst = []
-    for ch in s:
-        hv = hex(ord(ch)).replace('0x', '')
-        if len(hv) == 1:
-            hv = '0'+hv
-        lst.append(hv)
-    return reduce(lambda x,y:x+y, lst)
 
 class socketHandler(SocketServer.StreamRequestHandler):
     def handle(self):
@@ -58,8 +50,14 @@ def do_proxy(method, rurl, version, rfile, wfile):
         buf += rline
         if rline in ('\r\n', ''):
             break
+    while 1:
+        rline = rfile.readline()
+        buf += rline
+        if rline in ('\r\n', ''):
+            break
     buf = '%s %s %s\r\n%s'%(method, path, version,buf)
     print buf
+    print toHex.toHex(buf)
     ser = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ser.connect((host,port))
     ser.send(buf)
