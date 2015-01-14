@@ -65,20 +65,11 @@ def do_proxy(method, rurl, version, rfile, wfile):
     while 1:
         data = ser.recv(BUFLEN)
         server_buffer += data
-        i = server_buffer.find('\r\n\r\n')
-        if ((i!=-1)&(server_buffer[-4:]=='\r\n\r\n')&(i!=len(server_buffer)-4)):#not finished
+        i = server_buffer.find('\r\n\r\n')#received full header
+        if ((i!=-1)&(server_buffer[i+4:].find('\r\n\r\n')!=-1)):
             break
     print '==%s=='%server_buffer
     wfile.write(server_buffer)
-
-
-
-
- 
- 
-
-
-
 
 
 #def start_server(host='localhost', port=8080, IPv6=False, timeout=60,
