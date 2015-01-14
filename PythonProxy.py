@@ -103,5 +103,5 @@ def do_proxy(method, rurl, version, rfile, wfile):
 
 if __name__ == '__main__':
     HOST, PORT = "", 8080
-    server = SocketServer.TCPServer((HOST, PORT), socketHandler)
+    server = SocketServer.ThreadingTCPServer((HOST, PORT), socketHandler)
     server.serve_forever()
