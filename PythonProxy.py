@@ -65,7 +65,8 @@ def do_proxy(method, rurl, version, rfile, wfile):
     while 1:
         data = ser.recv(BUFLEN)
         server_buffer += data
-        if len(server_buffer)!=BUFLEN:
+        i = server_buffer.find('\r\n\r\n')
+        if ((i!=-1)&(server_buffer[-4:]=='\r\n\r\n')&(i!=len(server_buffer)-4)):#not finished
             break
     print '==%s=='%server_buffer
     wfile.write(server_buffer)
