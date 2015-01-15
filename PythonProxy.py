@@ -57,7 +57,6 @@ def do_proxy(method, rurl, version, rfile, wfile):
             break
     buf = '%s %s %s\r\n%s'%(method, path, version,buf)
     print buf
-    print toHex.toHex(buf)
     ser = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ser.connect((host,port))
     ser.send(buf)
@@ -104,5 +103,6 @@ def do_proxy(method, rurl, version, rfile, wfile):
 
 if __name__ == '__main__':
     HOST, PORT = "", 8080
+    print 'PyProxy is listening on %i'%PORT
     server = SocketServer.ThreadingTCPServer((HOST, PORT), socketHandler)
     server.serve_forever()
