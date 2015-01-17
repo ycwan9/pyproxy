@@ -6,12 +6,12 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     __base = BaseHTTPServer.BaseHTTPRequestHandler
     __base_handle = __base.handle
 
-    server_version = "TinyHTTPProxy/" + __version__
+    server_version = "PyProxy/" + __version__
     rbufsize = 0                        # self.rfile Be unbuffered
 
     def handle(self):
         (ip, port) =  self.client_address
-        if hasattr(self, 'allowed_clients') and ip not in self.allowed_clients:
+        if hasattr(self, 'log_urls') and ip not in self.log_urls:
             self.raw_requestline = self.rfile.readline()
             if self.parse_request(): self.send_error(403)
         else:
@@ -105,7 +105,7 @@ class ThreadingHTTPServer (SocketServer.ThreadingMixIn,
 if __name__ == '__main__':
     from sys import argv
     if argv[1:] and argv[1] in ('-h', '--help'):
-        print argv[0], "[port [allowed_client_name ...]]"
+        print argv[0], "[port [log_url_name ...]]"
     else:
         if argv[2:]:
             allowed = []
@@ -113,7 +113,7 @@ if __name__ == '__main__':
                 client = socket.gethostbyname(name)
                 allowed.append(client)
                 print "Accept: %s (%s)" % (client, name)
-            ProxyHandler.allowed_clients = allowed
+            ProxyHandler.log_urls = allowed
             del argv[2:]
         else:
             print "Any clients will be served..."
@@ -130,7 +130,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
 
     def handle(self):
         (ip, port) =  self.client_address
-        if hasattr(self, 'allowed_clients') and ip not in self.allowed_clients:
+        if hasattr(self, 'log_urls') and ip not in self.log_urls:
             self.raw_requestline = self.rfile.readline()
             if self.parse_request(): self.send_error(403)
         else:
@@ -224,7 +224,7 @@ class ThreadingHTTPServer (SocketServer.ThreadingMixIn,
 if __name__ == '__main__':
     from sys import argv
     if argv[1:] and argv[1] in ('-h', '--help'):
-        print argv[0], "[port [allowed_client_name ...]]"
+        print argv[0], "[port [log_url_name ...]]"
     else:
         if argv[2:]:
             allowed = []
@@ -232,7 +232,7 @@ if __name__ == '__main__':
                 client = socket.gethostbyname(name)
                 allowed.append(client)
                 print "Accept: %s (%s)" % (client, name)
-            ProxyHandler.allowed_clients = allowed
+            ProxyHandler.log_urls = allowed
             del argv[2:]
         else:
             print "Any clients will be served..."
