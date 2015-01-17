@@ -5,7 +5,7 @@ import re
 import sys
 import httplib
 import SocketServer
-import toHex
+#import toHex
 
 __version__ = '0.1.0 Draft 1'
 BUFLEN = 8192
