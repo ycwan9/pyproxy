@@ -1,6 +1,6 @@
 __version__ = "0.2.1"
 
-import BaseHTTPServer, select, socket, SocketServer, urlparse
+import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 
 class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     __base = BaseHTTPServer.BaseHTTPRequestHandler
@@ -55,44 +55,41 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             return
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            if self._connect_to(netloc, soc):
-                self.log_request()
-                soc.send("%s %s %s\r\n" % (
-                    self.command,
-                    urlparse.urlunparse(('', '', path, params, query, '')),
-                    self.request_version))
-                self.headers['Connection'] = 'close'
-                del self.headers['Proxy-Connection']
-                for key_val in self.headers.items():
-                    soc.send("%s: %s\r\n" % key_val)
-                soc.send("\r\n")
-                self._read_write(soc)
+            self.log_request()
+            conn = httplib.HTTPConnection(netloc)
+            print repr(self.headers)
+            self.headers['Connection'] = 'close'
+            del self.headers['Proxy-Connection']
+            data = ''
+            conn.request(self.command, path, data, self.headers)
+            res = conn.getresponse()
+            self.wfile.write(res.read())
         finally:
             print "\t" "bye"
             soc.close()
             self.connection.close()
 
-    def _read_write(self, soc, max_idling=20):
-        iw = [self.connection, soc]
-        ow = []
-        count = 0
-        while 1:
-            count += 1
-            (ins, _, exs) = select.select(iw, ow, iw, 3)
-            if exs: break
-            if ins:
-                for i in ins:
-                    if i is soc:
-                        out = self.connection
-                    else:
-                        out = soc
-                    data = i.recv(8192)
-                    if data:
-                        out.send(data)
-                        count = 0
-            else:
-                print "\t" "idle", count
-            if count == max_idling: break
+    #def _read_write(self, soc, max_idling=20):
+    #    iw = [self.connection, soc]
+    #    ow = []
+    #    count = 0
+    #    while 1:
+    #        count += 1
+    #        (ins, _, exs) = select.select(iw, ow, iw, 3)
+    #        if exs: break
+    #        if ins:
+    #            for i in ins:
+    #                if i is soc:
+    #                    out = self.connection
+    #                else:
+    #                    out = soc
+    #                data = i.recv(8192)
+    #                if data:
+    #                    out.send(data)
+    #                    count = 0
+    #        else:
+    #            print "\t" "idle", count
+    #        if count == max_idling: break
 
     do_HEAD = do_GET
     do_POST = do_GET
