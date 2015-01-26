@@ -96,8 +96,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     do_PUT  = do_GET
     do_DELETE=do_GET
 
-class ThreadingHTTPServer (SocketServer.ThreadingMixIn,
-                           BaseHTTPServer.HTTPServer): pass
+class ThreadingHTTPServer (SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer): pass
 
 if __name__ == '__main__':
     from sys import argv
