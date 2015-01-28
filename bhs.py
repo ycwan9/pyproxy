@@ -16,9 +16,11 @@ class handler (BaseHTTPServer.BaseHTTPRequestHandler):
         print 'POST=%s'%repr(self.headers.headers)
         print repr(self.raw_requestline)
         print repr(self.requestline)
-        for i in range(10):
+        while True:
             data = self.rfile.readline()
-            print '%i==%s'%(i, repr(data))
+            print '==%s'%(repr(data))
+            if data == '':
+                break
             
 server_address = ('', 8000)
 httpd = ThreadingHTTPServer(server_address, handler)
