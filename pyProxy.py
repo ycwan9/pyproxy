@@ -1,4 +1,4 @@
-__version__ = "0.2.1"
+__version__ = "0.1"
 
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 
@@ -48,6 +48,9 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             self.connection.close()
 
     def do_GET(self):
+        re_data = 0
+        if self.command in ['POST']:
+            re_data = 1
         (scm, netloc, path, params, query, fragment) = urlparse.urlparse(
             self.path, 'http')
         if scm != 'http' or fragment or not netloc:
