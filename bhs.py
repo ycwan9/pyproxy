@@ -19,7 +19,7 @@ class handler (BaseHTTPServer.BaseHTTPRequestHandler):
         while True:
             data = self.rfile.readline()
             print '==%s'%(repr(data))
-            if data == '':
+            if (data == '')or(data == '\r\n'):
                 break
             
 server_address = ('', 8000)
