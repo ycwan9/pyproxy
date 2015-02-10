@@ -48,9 +48,10 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             self.connection.close()
 
     def do_GET(self):
-        re_data = 0
+        data = ""
         if self.command in ['POST']:
-            re_data = 1
+            i = int(self.headers.getheader('Content-Length'))
+            data = self.rfile.read(i)
         (scm, netloc, path, params, query, fragment) = urlparse.urlparse(
             self.path, 'http')
         if scm != 'http' or fragment or not netloc:
