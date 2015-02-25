@@ -52,15 +52,13 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         if self.command in ['POST']:
             i = int(self.headers.getheader('Content-Length'))
             data = self.rfile.read(i)
-        (scm, netloc, path, params, query, fragment) = urlparse.urlparse(
-            self.path, 'http')
+        (scm, netloc, path, params, query, fragment) = urlparse.urlparse(self.path, 'http')
         if scm != 'http' or fragment or not netloc:
             self.send_error(400, "bad url %s" % self.path)
             return
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.log_request()
-            conn = httplib.HTTPConnection(netloc)
             print repr(self.headers)
             self.headers['Connection'] = 'close'
             del self.headers['Proxy-Connection']
