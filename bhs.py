@@ -17,6 +17,7 @@ class handler (BaseHTTPServer.BaseHTTPRequestHandler):
         print repr(self.headers.getheader('Content-Length'))
         i = int(self.headers.getheader('Content-Length'))
         s = self.rfile.read(i)
+        #s = self.request.recv(1024)
         print repr(s)
         self.wfile.write(repr(s))
         #c = 'Content-Length'
