@@ -48,10 +48,6 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             self.connection.close()
 
     def do_GET(self):
-        data = ""
-        if self.command in ['POST']:
-            i = int(self.headers.getheader('Content-Length'))
-            data = self.rfile.read(i)
         (scm, netloc, path, params, query, fragment) = urlparse.urlparse(self.path, 'http')
         if scm != 'http' or fragment or not netloc:
             self.send_error(400, "bad url %s" % self.path)
@@ -67,7 +63,12 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             self.headers['Connection'] = 'close'
             del self.headers['Proxy-Connection']
             header = '\r\n'.join(self.headers.headers)
-            request = '%s %s %s\r\n%s'%(self.command, path, self.version_string)
+            request = '%s %s %s\r\n%s\r\n'%(self.command, path, self.version_string, header)
+            data = '\r\n'
+            if self.command in ['POST']:
+                i = int(self.headers.getheader('Content-Length'))
+                data += self.rfile.read(i)
+
         finally:
             print "\t" "bye"
             soc.close()
