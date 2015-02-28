@@ -55,20 +55,27 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             i = netloc.find(':')
-            port = (int(netloc[i+1:]), 80)[i == -1]
-            host = (netloc[:i], netloc)[i == -1]
+            if i == -1 :
+                port = 80
+                host = netloc
+            else:
+                port = int(netloc[i+1:])
+                host = netloc[:i]
             #todo
             self.log_request()
             print repr(self.headers)
             self.headers['Connection'] = 'close'
             del self.headers['Proxy-Connection']
             header = '\r\n'.join(self.headers.headers)
-            request = '%s %s %s\r\n%s\r\n'%(self.command, path, self.version_string, header)
-            data = '\r\n'
+            if query :
+                netloc += '?'
+                netloc += query
+            request = '%s %s %s\r\n%s\r\n\r\n'%(self.command, path, self.version_string, header)
+            data = ''
             if self.command in ['POST']:
                 i = int(self.headers.getheader('Content-Length'))
-                data += self.rfile.read(i)
-
+                data = self.rfile.read(i)
+            request += data
         finally:
             print "\t" "bye"
             soc.close()
