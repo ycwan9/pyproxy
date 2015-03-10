@@ -1,6 +1,6 @@
-__version__ = "0.2.1"
+__version__ = "0.1"
 
-import BaseHTTPServer, select, socket, SocketServer, urlparse
+import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 
 class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     __base = BaseHTTPServer.BaseHTTPRequestHandler
@@ -48,59 +48,67 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             self.connection.close()
 
     def do_GET(self):
-        (scm, netloc, path, params, query, fragment) = urlparse.urlparse(
-            self.path, 'http')
+        (scm, netloc, path, params, query, fragment) = urlparse.urlparse(self.path, 'http')
         if scm != 'http' or fragment or not netloc:
             self.send_error(400, "bad url %s" % self.path)
             return
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            if self._connect_to(netloc, soc):
-                self.log_request()
-                soc.send("%s %s %s\r\n" % (
-                    self.command,
-                    urlparse.urlunparse(('', '', path, params, query, '')),
-                    self.request_version))
-                self.headers['Connection'] = 'close'
-                del self.headers['Proxy-Connection']
-                for key_val in self.headers.items():
-                    soc.send("%s: %s\r\n" % key_val)
-                soc.send("\r\n")
-                self._read_write(soc)
+            i = netloc.find(':')
+            if i == -1 :
+                port = 80
+                host = netloc
+            else:
+                port = int(netloc[i+1:])
+                host = netloc[:i]
+            #todo
+            self.log_request()
+            print repr(self.headers)
+            self.headers['Connection'] = 'close'
+            del self.headers['Proxy-Connection']
+            header = '\r\n'.join(self.headers.headers)
+            if query :
+                netloc += '?'
+                netloc += query
+            request = '%s %s %s\r\n%s\r\n\r\n'%(self.command, path, self.version_string, header)
+            data = ''
+            if self.command in ['POST']:
+                i = int(self.headers.getheader('Content-Length'))
+                data = self.rfile.read(i)
+            request += data
         finally:
             print "\t" "bye"
             soc.close()
             self.connection.close()
 
-    def _read_write(self, soc, max_idling=20):
-        iw = [self.connection, soc]
-        ow = []
-        count = 0
-        while 1:
-            count += 1
-            (ins, _, exs) = select.select(iw, ow, iw, 3)
-            if exs: break
-            if ins:
-                for i in ins:
-                    if i is soc:
-                        out = self.connection
-                    else:
-                        out = soc
-                    data = i.recv(8192)
-                    if data:
-                        out.send(data)
-                        count = 0
-            else:
-                print "\t" "idle", count
-            if count == max_idling: break
+    #def _read_write(self, soc, max_idling=20):
+    #    iw = [self.connection, soc]
+    #    ow = []
+    #    count = 0
+    #    while 1:
+    #        count += 1
+    #        (ins, _, exs) = select.select(iw, ow, iw, 3)
+    #        if exs: break
+    #        if ins:
+    #            for i in ins:
+    #                if i is soc:
+    #                    out = self.connection
+    #                else:
+    #                    out = soc
+    #                data = i.recv(8192)
+    #                if data:
+    #                    out.send(data)
+    #                    count = 0
+    #        else:
+    #            print "\t" "idle", count
+    #        if count == max_idling: break
 
     do_HEAD = do_GET
     do_POST = do_GET
     do_PUT  = do_GET
     do_DELETE=do_GET
 
-class ThreadingHTTPServer (SocketServer.ThreadingMixIn,
-                           BaseHTTPServer.HTTPServer): pass
+class ThreadingHTTPServer (SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer): pass
 
 if __name__ == '__main__':
     from sys import argv
