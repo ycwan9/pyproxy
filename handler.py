@@ -53,12 +53,11 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         try:
             i = netloc.find(':')
             if i == -1 :
-                port = 80
+                port= 80
                 host = netloc
             else:
                 port = int(netloc[i+1:])
                 host = netloc[:i]
-            #todo
             self.log_request()
             print repr(self.headers)
             self.headers['Connection'] = 'close'
@@ -73,11 +72,34 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
                 i = int(self.headers.getheader('Content-Length'))
                 data = self.rfile.read(i)
             request += data
+            recv = self.proxy((host,port), request)
+            #todo
         finally:
             print "\t" "bye"
             soc.close()
             self.connection.close()
-
+            
+    def proxy(self, host ,request):
+        try:
+            rec = ""
+            soc = socket.create_connection(host)
+            soc.send(request)
+            soc.settimeout(5)
+            data = soc.recv(2048)
+            rec = data
+            while len(data) == 2048:
+                data = soc.recv(2048)
+                rec += data
+        except socket.timeout:
+            if rec == "":
+                self.send_error(404 ,"Request Time Out -- by pyProxy")
+                return ""
+            return rec
+        except:
+            self.send_error(400,"Unkwon -- by pyProxy")
+            return ""
+        return rec
+        
     #def _read_write(self, soc, max_idling=20):
     #    iw = [self.connection, soc]
     #    ow = []
