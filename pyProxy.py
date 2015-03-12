@@ -1,11 +1,10 @@
-__version__ = "0.1"
-
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 import handler
 
 class ThreadingHTTPServer (SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer): pass
-
+print 'a'
 if __name__ == '__main__':
+    print 'hello'
     from sys import argv
     if argv[1:] and argv[1] in ('-h', '--help'):
         print argv[0], "[port [log_url_name ...]]"
