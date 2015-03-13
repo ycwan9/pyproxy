@@ -13,36 +13,43 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     #     else:
     #         self.__base_handle()
 
-    #   def _connect_to(self, netloc, soc):
-    #     i = netloc.find(':')
-    #     if i >= 0:
-    #         host_port = netloc[:i], int(netloc[i+1:])
-    #     else:
-    #         host_port = netloc, 80
-    #     print "\t" "connect to %s:%d" % host_port
-    #     try: soc.connect(host_port)
-    #     except socket.error, arg:
-    #         try: msg = arg[1]
-    #         except: msg = arg
-    #         self.send_error(404, msg)
-    #         return 0
-    #     return 1
+    #def _connect_to(self, netloc, soc):
+        #i = netloc.find(':')
+        #if i >= 0:
+            #host_port = netloc[:i], int(netloc[i+1:])
+        #else:
+            #host_port = netloc, 80
+        #print "\t" "connect to %s:%d" % host_port
+        #try: soc.connect(host_port)
+        #except socket.error, arg:
+            #try: msg = arg[1]
+            #except: msg = arg
+            #self.send_error(404, msg)
+            #return 0
+        #return 1
+    
     server_version = "PyProxy/0.1"
     rbufsize = 0                        # self.rfile Be unbuffered
 
     def do_CONNECT(self):
-        soc = socket.socket()
+        netloc = self.path
+        i = netloc.find(':')
+        if i >= 0:
+            host_port = netloc[:i], int(netloc[i+1:])
+        else:
+            host_port = netloc, 80
         try:
-            if self._connect_to(self.path, soc):
+            rec = proxy.proxy(host_port, "", self.send_error)
+            if rec != 0:
                 self.log_request(200)
                 self.wfile.write(self.protocol_version +
                                  " 200 Connection established\r\n")
                 self.wfile.write("Proxy-agent: %s\r\n" % self.version_string())
                 self.wfile.write("\r\n")
-                self._read_write(soc, 300)
+                self.wfile.write(rec)
+                #self._read_write(soc, 300)
         finally:
             print "\t" "bye"
-            soc.close()
             self.connection.close()
 
     def do_GET(self):
@@ -63,11 +70,11 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         print repr(self.headers.headers)
         self.headers['Connection'] = 'close'
         del self.headers['Proxy-Connection']
-        header = '\r\n'.join(self.headers.headers)
+        header = ''.join(self.headers.headers)
         if query :
             netloc += '?'
             netloc += query
-        request = '%s %s %s\r\n%s\r\n\r\n'%(self.command, path, self.version_string, header)
+        request = '%s %s %s\r\n%s\r\n\r\n'%(self.command, path, self.request_version, header)
         data = ''
         if self.command in ['POST']:
             i = int(self.headers.getheader('Content-Length'))

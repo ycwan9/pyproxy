@@ -1,6 +1,7 @@
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 
 def proxy(host ,request, err_func):
+    print "proxying %s on port %i"%host
     try:
         rec = ""
         soc = socket.create_connection(host)
@@ -12,11 +13,13 @@ def proxy(host ,request, err_func):
             data = soc.recv(2048)
             rec += data
     except socket.timeout:
+        if request == "":
+            return rec
         if rec == "":
             err_func(404 ,"Request Time Out -- by pyProxy")
-            return ""
+            return 0
         return rec
     except:
         err_func(400,"Unkwon -- by pyProxy")
-        return ""
+        return 0
     return rec
