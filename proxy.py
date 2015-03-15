@@ -2,6 +2,7 @@ import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 
 def proxy(host ,request, err_func):
     print "proxying %s on port %i"%host
+    print "req is '%s'"%repr(request)
     try:
         rec = ""
         soc = socket.create_connection(host)
