@@ -7,7 +7,7 @@ def proxy(host ,request, err_func):
         rec = ""
         soc = socket.create_connection(host)
         soc.send(request)
-        soc.settimeout(5)
+        #soc.settimeout(5)
         data = soc.recv(2048)
         rec = data
         while len(data) == 2048:

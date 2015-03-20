@@ -68,13 +68,13 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             host = netloc[:i]
         self.log_request()
         print repr(self.headers.headers)
-        self.headers['Connection'] = 'close'
+        self.headers['Connection'] = 'close\r'
         del self.headers['Proxy-Connection']
         header = ''.join(self.headers.headers)
         if query :
             netloc += '?'
             netloc += query
-        request = '%s %s %s\r\n%s\r\n\r\n'%(self.command, path, self.request_version, header)
+        request = '%s %s %s\r\n%s\r\n'%(self.command, path, self.request_version, header)
         data = ''
         if self.command in ['POST']:
             i = int(self.headers.getheader('Content-Length'))
