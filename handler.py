@@ -53,6 +53,11 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             self.connection.close()
 
     def do_GET(self):
+        #you can use url like 
+        #http://localhost:8080/http:google.com/ 
+        #to debug it
+        if (len(self.path)>5) and (self.path[:5] == "/http"):
+            self.path = self.path[1:]
         (scm, netloc, path, params, query, fragment) = urlparse.urlparse(self.path, 'http')
         if scm != 'http' or fragment or not netloc:
             self.send_error(400, "bad url %s" % self.path)
