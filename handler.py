@@ -73,8 +73,9 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             host = netloc[:i]
         self.log_request()
         print repr(self.headers.headers)
-        self.headers['Connection'] = 'close\r'
+        del self.headers['Connection']
         del self.headers['Proxy-Connection']
+        self.headers.headers += 'Connection:close\r\n'
         header = ''.join(self.headers.headers)
         if query :
             netloc += '?'
