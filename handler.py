@@ -39,15 +39,20 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             host_port = netloc, 80
         try:
-            rec = proxy.proxy(host_port, "", self.send_error)
-            if rec != 0:
-                self.log_request(200)
-                self.wfile.write(self.protocol_version +
-                                 " 200 Connection established\r\n")
-                self.wfile.write("Proxy-agent: %s\r\n" % self.version_string())
-                self.wfile.write("\r\n")
-                self.wfile.write(rec)
-                #self._read_write(soc, 300)
+            print "\t" "connect to %s:%d" % host_port
+            try: soc.connect(host_port)
+            except socket.error, arg:
+                try: msg = arg[1]
+                except: msg = arg
+                self.send_error(404, msg)
+                return 0
+            self.log_request(200)
+            self.wfile.write(self.protocol_version +
+                             " 200 Connection established\r\n")
+            self.wfile.write("Proxy-agent: %s\r\n" % self.version_string())
+            self.wfile.write("\r\n")
+            self.wfile.write(rec)
+            #self._read_write(soc, 300)
         finally:
             print "\t" "bye"
             self.connection.close()

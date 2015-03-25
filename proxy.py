@@ -8,11 +8,26 @@ def proxy(host ,request, err_func):
         soc = socket.create_connection(host)
         soc.send(request)
         #soc.settimeout(5)
-        data = soc.recv(2048)
-        rec = data
-        while len(data) == 2048:
-            data = soc.recv(2048)
-            rec += data
+        iw = [self.connection, soc]
+        ow = []
+        count = 0
+        while 1:
+            count += 1
+            (ins, _, exs) = select.select(iw, ow, iw, 3)
+            if exs: break
+            if ins:
+                for i in ins:
+                    if i is soc:
+                        out = self.connection
+                    else:
+                        out = soc
+                    data = i.recv(8192)
+                    if data:
+                        out.send(data)
+                        count = 0
+            else:
+                print "\t" "idle", count
+            if count == max_idling: break
     except socket.timeout:
         if request == "":
             return rec
