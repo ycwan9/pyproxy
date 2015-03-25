@@ -40,19 +40,12 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             host_port = netloc, 80
         try:
             print "\t" "connect to %s:%d" % host_port
-            try: soc.connect(host_port)
-            except socket.error, arg:
-                try: msg = arg[1]
-                except: msg = arg
-                self.send_error(404, msg)
-                return 0
             self.log_request(200)
             self.wfile.write(self.protocol_version +
                              " 200 Connection established\r\n")
             self.wfile.write("Proxy-agent: %s\r\n" % self.version_string())
             self.wfile.write("\r\n")
-            self.wfile.write(rec)
-            #self._read_write(soc, 300)
+            proxy.read_write(host_port, self.connection, self.send_error, 300)
         finally:
             print "\t" "bye"
             self.connection.close()
@@ -61,12 +54,16 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         #you can use url like 
         #http://localhost:8080/http:google.com/ 
         #to debug it
+        debug = 0
         if (len(self.path)>5) and (self.path[:5] == "/http"):
             self.path = self.path[1:]
         (scm, netloc, path, params, query, fragment) = urlparse.urlparse(self.path, 'http')
         if scm != 'http' or fragment or not netloc:
             self.send_error(400, "bad url %s" % self.path)
             return
+        if debug:
+            del self.headers["Host"]
+            self.headers.headers += "Host:%s"%netloc
         #soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #try:
         i = netloc.find(':')
@@ -77,10 +74,9 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             port = int(netloc[i+1:])
             host = netloc[:i]
         self.log_request()
-        print repr(self.headers.headers)
         del self.headers['Connection']
         del self.headers['Proxy-Connection']
-        self.headers.headers += 'Connection:close\r\n'
+        self.headers.headers.append('Connection:close\r\n')
         header = ''.join(self.headers.headers)
         if query :
             netloc += '?'
@@ -91,6 +87,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             i = int(self.headers.getheader('Content-Length'))
             data = self.rfile.read(i)
         request += data
+        print repr(self.headers.headers)
         recv = proxy.proxy((host,port), request, self.send_error)
         if recv :
             self.wfile.write(recv)
