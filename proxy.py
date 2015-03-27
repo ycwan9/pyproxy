@@ -1,8 +1,8 @@
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 
 def read_write(host, conn, err_func, max_idling=20):
-    print "proxying %s on port %i"%host
-    print "req is '%s'"%repr(request)
+    print "reading & writing %s on port %i"%host
+    #print "req is '%s'"%repr(request)
     try:
         rec = ""
         soc = socket.create_connection(host)
@@ -40,8 +40,8 @@ def read_write(host, conn, err_func, max_idling=20):
     return rec
 
 def proxy(host ,request, err_func):
-    print "proxying %s on port %i"%host
-    print "req is '%s'"%repr(request)
+    #print "proxying %s on port %i"%host
+    #print "req is '%s'"%repr(request)
     try:
         rec = ""
         soc = socket.create_connection(host)

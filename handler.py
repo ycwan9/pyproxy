@@ -63,7 +63,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             return
         if debug:
             del self.headers["Host"]
-            self.headers.headers += "Host:%s"%netloc
+            self.headers.headers.append("Host:%s"%netloc)
         #soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #try:
         i = netloc.find(':')
