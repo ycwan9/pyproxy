@@ -6,10 +6,12 @@ def read_write(host, conn, err_func, max_idling=20):
     try:
         rec = ""
         soc = socket.create_connection(host)
-        soc.send(request)
+        #soc.send(request)
         #soc.settimeout(5)
         iw = [conn, soc]
         count = 0
+        istr = ''
+        ostr = ''
         while 1:
             count += 1
             (ins, _, exs) = select.select(iw, [], iw, 3)
@@ -18,11 +20,14 @@ def read_write(host, conn, err_func, max_idling=20):
                 for i in ins:
                     if i is soc:
                         out = conn
+                        s = ostr
                     else:
                         out = soc
+                        s = istr
                     data = i.recv(8192)
                     if data:
                         out.send(data)
+                        s += data
                         count = 0
             else:
                 print "\t" "idle", count
@@ -37,6 +42,8 @@ def read_write(host, conn, err_func, max_idling=20):
     except:
         err_func(400,"Unkwon -- by pyProxy")
         return 0
+    print 'input ===\n%s\n'%istr
+    print 'output ===\n%s\n'%ostr
     return rec
 
 def proxy(host ,request, err_func):

@@ -45,7 +45,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
                              " 200 Connection established\r\n")
             self.wfile.write("Proxy-agent: %s\r\n" % self.version_string())
             self.wfile.write("\r\n")
-            proxy.read_write(host_port, self.connection, self.send_error, 300)
+            proxy.read_write(host_port, self.connection, self.send_error)
         finally:
             print "\t" "bye"
             self.connection.close()
