@@ -53,12 +53,23 @@ def proxy(host ,request, err_func):
         rec = ""
         soc = socket.create_connection(host)
         soc.send(request)
+        fd = soc.makefile()
+        data = fd.readline()
+        con_lenth = -1
+        while buf != '\r\n':
+            buf = fd.readline()
+            data += buf
+            k,v = buf.split(':')
+            if k == 'Content-Length':
+                con_lenth = int(v)
+                #todo
+
         #soc.settimeout(5)
-        data = soc.recv(2048)
-        rec = data
-        while len(data) == 2048:
-            data = soc.recv(2048)
-            rec += data
+#        data = soc.recv(2048)
+#        rec = data
+#        while len(data) == 2048:
+#            data = soc.recv(2048)
+#            rec += data
     except socket.timeout:
         if request == "":
             return rec
