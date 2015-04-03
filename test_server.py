@@ -11,5 +11,3 @@ if __name__ == "__main__":
     HOST, PORT = "localhost", 9999
     server = SocketServer.ThreadingTCPServer((HOST, PORT), MyTCPHandler)
     server.serve_forever()
-
-

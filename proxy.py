@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 
 def read_write(host, conn, err_func, max_idling=20):
@@ -50,19 +51,26 @@ def proxy(host ,request, err_func):
     #print "proxying %s on port %i"%host
     #print "req is '%s'"%repr(request)
     try:
-        rec = ""
         soc = socket.create_connection(host)
         soc.send(request)
         fd = soc.makefile()
-        data = fd.readline()
-        con_lenth = -1
+        data = fd.readline
+        buf = ""
+        con_len = -1
         while buf != '\r\n':
-            buf = fd.readline()
             data += buf
-            k,v = buf.split(':')
-            if k == 'Content-Length':
-                con_lenth = int(v)
-                #todo
+            if buf.find('Content-Length') != -1:
+                con_len = int(buf[buf.find(':')+1:])
+            buf = fd.readline()
+        if con_len != -1:
+            data += fd.read(con_len)
+        else:
+            soc.settimeout(10)
+            buf = ''
+            while buf != '\r\n':
+                buf = fd.readline()
+                data += buf
+            #todo
 
         #soc.settimeout(5)
 #        data = soc.recv(2048)
@@ -72,12 +80,12 @@ def proxy(host ,request, err_func):
 #            rec += data
     except socket.timeout:
         if request == "":
-            return rec
-        if rec == "":
+            return data
+        if data == "":
             err_func(404 ,"Request Time Out -- by pyProxy")
             return 0
-        return rec
+        return data
     except:
         err_func(400,"Unkwon -- by pyProxy")
         return 0
-    return rec
+    return data

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 import handler
 

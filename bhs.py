@@ -27,7 +27,7 @@ class handler (BaseHTTPServer.BaseHTTPRequestHandler):
         #    print '==%s'%(repr(data))
         #    if (data == '')or(data == '\r\n'):
         #        break
-            
+
 server_address = ('', 8080)
 print "listening in",repr(server_address)
 httpd = ThreadingHTTPServer(server_address, handler)

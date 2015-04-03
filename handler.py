@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 import proxy
 
@@ -27,7 +28,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             #self.send_error(404, msg)
             #return 0
         #return 1
-    
+
     server_version = "PyProxy/0.1"
     rbufsize = 0                        # self.rfile Be unbuffered
 
@@ -51,8 +52,8 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             self.connection.close()
 
     def do_GET(self):
-        #you can use url like 
-        #http://localhost:8080/http:google.com/ 
+        #you can use url like
+        #http://localhost:8080/http:google.com/
         #to debug it
         debug = 0
         if (len(self.path)>5) and (self.path[:5] == "/http"):
@@ -96,7 +97,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         print "\t" "bye"
         #soc.close()
         #self.connection.close()
-                    
+
     #def _read_write(self, soc, max_idling=20):
     #    iw = [self.connection, soc]
     #    ow = []
@@ -123,5 +124,3 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     do_POST = do_GET
     do_PUT  = do_GET
     do_DELETE=do_GET
-
-
