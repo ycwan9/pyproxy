@@ -54,7 +54,7 @@ def proxy(host ,request, err_func):
         soc = socket.create_connection(host)
         soc.send(request)
         fd = soc.makefile()
-        data = fd.readline
+        data = fd.readline()
         buf = ""
         con_len = -1
         while buf != '\r\n':
@@ -85,7 +85,7 @@ def proxy(host ,request, err_func):
             err_func(404 ,"Request Time Out -- by pyProxy")
             return 0
         return data
-    except:
-        err_func(400,"Unkwon -- by pyProxy")
-        return 0
+    #except:
+    #    err_func(400,"Unkwon -- by pyProxy")
+    #    return 0
     return data
