@@ -89,9 +89,9 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             data = self.rfile.read(i)
         request += data
         print repr(self.headers.headers)
-        recv = proxy.proxy((host,port), request, self.send_error)
-        if recv :
-            self.wfile.write(recv)
+        proxy.read_write((host,port), self.connection, self.send_error, request)
+        #if recv :
+        #    self.wfile.write(recv)
         #todo
         #finally:
         print "\t" "bye"

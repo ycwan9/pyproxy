@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 
-def read_write(host, conn, err_func, max_idling=20):
+def read_write(host, conn, err_func, request="", max_idling=20):
     print "reading & writing %s on port %i"%host
     #print "req is '%s'"%repr(request)
     try:
         rec = ""
         soc = socket.create_connection(host)
+        if request:
+            soc.send(request)
         #soc.send(request)
         #soc.settimeout(5)
         iw = [conn, soc]
@@ -47,7 +49,7 @@ def read_write(host, conn, err_func, max_idling=20):
     print 'output ===\n%s\n'%ostr
     return rec
 
-def proxy(host ,request, err_func):
+def proxy(host, conn, err_func, request):
     #print "proxying %s on port %i"%host
     #print "req is '%s'"%repr(request)
     try:
@@ -64,20 +66,23 @@ def proxy(host ,request, err_func):
             buf = fd.readline()
         if con_len != -1:
             data += fd.read(con_len)
+            conn.send(data)
         else:
-            soc.settimeout(10)
-            buf = ''
-            while buf != '\r\n':
-                buf = fd.readline()
+            #soc.settimeout(10)
+            #buf = ''
+            #while buf != '\r\n':
+            #    buf = fd.readline()
+            #    data += buf
+            ##todo
+            soc.settimeout(1)
+            conn.send(data)
+            buf = soc.recv(2048)
+            conn.send(buf)
+            data += buf
+            while len(buf) == 2048:
+                buf = soc.recv(2048)
+                conn.send(buf)
                 data += buf
-            #todo
-
-        #soc.settimeout(5)
-#        data = soc.recv(2048)
-#        rec = data
-#        while len(data) == 2048:
-#            data = soc.recv(2048)
-#            rec += data
     except socket.timeout:
         if request == "":
             return data
