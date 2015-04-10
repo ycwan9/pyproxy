@@ -22,16 +22,19 @@ def read_write(host, conn, err_func, request="", max_idling=20):
             if ins:
                 for i in ins:
                     if i is soc:
-                        out = conn
-                        s = ostr
+                        data = i.recv(8192)
+                        if data:
+                            conn.send(data)
+                            ostr += data
+                            count = 0
+                        #ostr
                     else:
-                        out = soc
-                        s = istr
-                    data = i.recv(8192)
-                    if data:
-                        out.send(data)
-                        s += data
-                        count = 0
+                        data = i.recv(8192)
+                        if data:
+                            soc.send(data)
+                            istr += data
+                            count = 0
+                        #istr
             else:
                 print "\t" "idle", count
             if count == max_idling: break
@@ -42,17 +45,18 @@ def read_write(host, conn, err_func, request="", max_idling=20):
             err_func(404 ,"Request Time Out -- by pyProxy")
             return 0
         return rec
-    except:
-        err_func(400,"Unkwon -- by pyProxy")
-        return 0
+    #except:
+    #    err_func(400,"Unkwon -- by pyProxy")
+    #    return 0
     print 'input ===\n%s\n'%istr
     print 'output ===\n%s\n'%ostr
     return rec
 
 def proxy(host, conn, err_func, request):
-    #print "proxying %s on port %i"%host
+    print "proxying %s on port %i"%host
     #print "req is '%s'"%repr(request)
     try:
+        global req_queue
         soc = socket.create_connection(host)
         soc.send(request)
         fd = soc.makefile()
@@ -66,31 +70,20 @@ def proxy(host, conn, err_func, request):
             buf = fd.readline()
         if con_len != -1:
             data += fd.read(con_len)
-            conn.send(data)
         else:
-            #soc.settimeout(10)
-            #buf = ''
-            #while buf != '\r\n':
-            #    buf = fd.readline()
-            #    data += buf
-            ##todo
             soc.settimeout(1)
-            conn.send(data)
-            buf = soc.recv(2048)
-            conn.send(buf)
-            data += buf
-            while len(buf) == 2048:
-                buf = soc.recv(2048)
-                conn.send(buf)
+            buf = ''
+            while buf != '':
+                buf = soc.read(1024)
                 data += buf
+
     except socket.timeout:
-        if request == "":
-            return data
         if data == "":
             err_func(404 ,"Request Time Out -- by pyProxy")
-            return 0
-        return data
+            return 404
     #except:
     #    err_func(400,"Unkwon -- by pyProxy")
     #    return 0
-    return data
+    conn.send(data)
+    req_queue.put((request,data))
+    return 0

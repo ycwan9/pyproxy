@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 import handler
+import Queue
 
 class ThreadingHTTPServer (SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer): pass
 print 'a'
@@ -14,5 +15,6 @@ if __name__ == '__main__':
         if argv[1:]:
             port = int(argv[1])
         print "listen on %i"%port
-        httpd = BaseHTTPServer.HTTPServer(('0.0.0.0',port), handler.ProxyHandler)
+        req_queue = Queue.Queue()
+        httpd = ThreadingHTTPServer(('0.0.0.0',port), handler.ProxyHandler)
         httpd.serve_forever()

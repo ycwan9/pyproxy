@@ -55,6 +55,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         #you can use url like
         #http://localhost:8080/http:google.com/
         #to debug it
+        global req_queue
         debug = 0
         if (len(self.path)>5) and (self.path[:5] == "/http"):
             self.path = self.path[1:]
@@ -89,7 +90,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             data = self.rfile.read(i)
         request += data
         print repr(self.headers.headers)
-        proxy.read_write((host,port), self.connection, self.send_error, request)
+        proxy.proxy((host,port), self.connection, self.send_error, request)
         #if recv :
         #    self.wfile.write(recv)
         #todo
