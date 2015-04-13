@@ -55,13 +55,21 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         #you can use url like
         #http://localhost:8080/http:google.com/
         #to debug it
-        global req_queue
         debug = 0
-        if (len(self.path)>5) and (self.path[:5] == "/http"):
-            self.path = self.path[1:]
+        #if (len(self.path)>5) and (self.path[:5] == "/http"):
+        #    self.path = self.path[1:]
         (scm, netloc, path, params, query, fragment) = urlparse.urlparse(self.path, 'http')
         if scm != 'http' or fragment or not netloc:
             self.send_error(400, "bad url %s" % self.path)
+            return
+        if netloc == 'debug.net':
+            (q, r) = self.req_queue.get()
+            self.wfile.write("""HTTP/1.1 200 OK\r\n\r\n
+            ========
+            %s
+            ========
+            %s
+            \r\n\r\n"""%(repr(q), repr(r)))
             return
         if debug:
             del self.headers["Host"]
@@ -90,7 +98,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             data = self.rfile.read(i)
         request += data
         print repr(self.headers.headers)
-        proxy.proxy((host,port), self.connection, self.send_error, request)
+        proxy.proxy((host,port), self.connection, self.send_error, request, self.req_queue)
         #if recv :
         #    self.wfile.write(recv)
         #todo

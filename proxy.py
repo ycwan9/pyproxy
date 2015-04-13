@@ -52,11 +52,10 @@ def read_write(host, conn, err_func, request="", max_idling=20):
     print 'output ===\n%s\n'%ostr
     return rec
 
-def proxy(host, conn, err_func, request):
+def proxy(host, conn, err_func, request, req_queue):
     print "proxying %s on port %i"%host
     #print "req is '%s'"%repr(request)
     try:
-        global req_queue
         soc = socket.create_connection(host)
         soc.send(request)
         fd = soc.makefile()
@@ -86,4 +85,4 @@ def proxy(host, conn, err_func, request):
     #    return 0
     conn.send(data)
     req_queue.put((request,data))
-    return 0
+    return

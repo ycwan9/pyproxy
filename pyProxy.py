@@ -15,6 +15,6 @@ if __name__ == '__main__':
         if argv[1:]:
             port = int(argv[1])
         print "listen on %i"%port
-        req_queue = Queue.Queue()
+        handler.ProxyHandler.req_queue = Queue.Queue()
         httpd = ThreadingHTTPServer(('0.0.0.0',port), handler.ProxyHandler)
         httpd.serve_forever()
