@@ -69,6 +69,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             %s
             ========
             %s
+            ========
             \r\n\r\n"""%(repr(q), repr(r)))
             return
         if debug:
