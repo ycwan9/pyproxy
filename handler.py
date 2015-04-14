@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
 import proxy
+import debug_server
 
     #__base = BaseHTTPServer.BaseHTTPRequestHandler
     #__base_handle = __base.handle
@@ -63,14 +64,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             self.send_error(400, "bad url %s" % self.path)
             return
         if netloc == 'debug.net':
-            (q, r) = self.req_queue.get()
-            self.wfile.write("""HTTP/1.1 200 OK\r\n\r\n
-            ========
-            %s
-            ========
-            %s
-            ========
-            \r\n\r\n"""%(repr(q), repr(r)))
+            debug_server.do_debug(path, query, self.wfile, self.req_queue, self.send_error)
             return
         if debug:
             del self.headers["Host"]
@@ -90,8 +84,8 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
         self.headers.headers.append('Connection:close\r\n')
         header = ''.join(self.headers.headers)
         if query :
-            netloc += '?'
-            netloc += query
+            path += '?'
+            path += query
         request = '%s %s %s\r\n%s\r\n'%(self.command, path, self.request_version, header)
         data = ''
         if self.command in ['POST']:
