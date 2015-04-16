@@ -67,7 +67,9 @@ def proxy(host, conn, err_func, request, req_queue):
             if buf.find('Content-Length') != -1:
                 con_len = int(buf[buf.find(':')+1:])
             buf = fd.readline()
+        data += "\r\n"
         if con_len != -1:
+            print con_len
             data += fd.read(con_len)
         else:
             soc.settimeout(1)
