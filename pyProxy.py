@@ -17,4 +17,7 @@ if __name__ == '__main__':
         print "listen on %i"%port
         handler.ProxyHandler.req_queue = Queue.Queue()
         httpd = ThreadingHTTPServer(('0.0.0.0',port), handler.ProxyHandler)
-        httpd.serve_forever()
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt,err:
+            print 'bye bye :%s'%repr(err)

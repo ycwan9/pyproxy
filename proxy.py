@@ -78,13 +78,14 @@ def proxy(host, conn, err_func, request, req_queue):
                 buf = soc.read(1024)
                 data += buf
 
-    except socket.timeout:
+    except socket.timeout,err:
         if data == "":
-            err_func(404 ,"Request Time Out -- by pyProxy")
+            err_func(404 ,"Request Time Out :%s -- by pyProxy"%repr(err))
             return 404
-    #except:
-    #    err_func(400,"Unkwon -- by pyProxy")
-    #    return 0
+    except (socket.error,socket.herror),err:
+        print repr(err)
+        err_func(400,"Unkwon: %s -- by pyProxy"%repr(err))
+        return 0
     conn.send(data)
     req_queue.put((request,data))
     return
