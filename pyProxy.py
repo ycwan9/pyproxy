@@ -20,4 +20,4 @@ if __name__ == '__main__':
         try:
             httpd.serve_forever()
         except KeyboardInterrupt,err:
-            print 'bye bye :%s'%repr(err)
+            print 'bye bye\nExit by Keyboard Interrupt'%repr(err)
