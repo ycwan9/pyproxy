@@ -7,29 +7,6 @@ import debug_server
     #__base_handle = __base.handle
 
 class ProxyHandler (httpServer.pyProxyHTTPRequestHandler):
-    # def handle(self):
-    #     (ip, port) =  self.client_address
-    #     if hasattr(self, 'log_urls') and ip not in self.log_urls:
-    #         self.raw_requestline = self.rfile.readline()
-    #         if self.parse_request(): self.send_error(403)
-    #     else:
-    #         self.__base_handle()
-
-    #def _connect_to(self, netloc, soc):
-        #i = netloc.find(':')
-        #if i >= 0:
-            #host_port = netloc[:i], int(netloc[i+1:])
-        #else:
-            #host_port = netloc, 80
-        #print "\t" "connect to %s:%d" % host_port
-        #try: soc.connect(host_port)
-        #except socket.error, arg:
-            #try: msg = arg[1]
-            #except: msg = arg
-            #self.send_error(404, msg)
-            #return 0
-        #return 1
-
     server_version = "PyProxy/0.1"
     rbufsize = 0                        # self.rfile Be unbuffered
 
@@ -124,7 +101,3 @@ class ProxyHandler (httpServer.pyProxyHTTPRequestHandler):
     #            print "\t" "idle", count
     #        if count == max_idling: break
 
-    do_HEAD = do_GET
-    do_POST = do_GET
-    do_PUT  = do_GET
-    do_DELETE=do_GET
