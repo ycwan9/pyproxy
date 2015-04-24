@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
+import httpServer, select, socket, SocketServer, urlparse, httplib
 import proxy
 import debug_server
 
     #__base = BaseHTTPServer.BaseHTTPRequestHandler
     #__base_handle = __base.handle
 
-class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
+class ProxyHandler (httpServer.pyProxyHTTPRequestHandler):
     # def handle(self):
     #     (ip, port) =  self.client_address
     #     if hasattr(self, 'log_urls') and ip not in self.log_urls:

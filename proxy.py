@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib
+import select, socket, urlparse, httplib
 
 def read_write(host, conn, err_func, request="", max_idling=20):
     print "reading & writing %s on port %i"%host
