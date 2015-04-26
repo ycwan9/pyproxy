@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 *.swp
 *~
-*.pyc
-*.wpr
-*.wpu
-=======
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -62,4 +57,3 @@ docs/_build/
 
 # PyBuilder
 target/
->>>>>>> github/master

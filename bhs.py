@@ -1,3 +1,4 @@
+"""This is a tmp file for debug BaseHTTPServer simple"""
 import BaseHTTPServer, select, socket, SocketServer, urlparse, httplib, shutil, cgi
 class ThreadingHTTPServer (SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer): pass
 
