@@ -2,6 +2,7 @@
 import httpServer, select, socket, urlparse, httplib
 import handler
 import Queue
+import proxy
 
 if __name__ == '__main__':
     print 'hello'
@@ -14,7 +15,7 @@ if __name__ == '__main__':
             port = int(argv[1])
         print "listen on %i"%port
         handler.ProxyHandler.req_queue = Queue.Queue()
-        httpd = httpServer.ThreadingProxyHTTPServer(('0.0.0.0',port), handler.ProxyHandler)
+        httpd = httpServer.ThreadingProxyHTTPServer(('0.0.0.0',port), proxy.proxy)
         try:
             httpd.serve_forever()
         except KeyboardInterrupt,err:

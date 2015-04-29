@@ -14,11 +14,11 @@ class ProxyHandler (httpServer.pyProxyHTTPRequestHandler):
         netloc = self.path
         i = netloc.find(':')
         if i >= 0:
-            host_port = netloc[:i], int(netloc[i+1:])
+            self.host_port = netloc[:i], int(netloc[i+1:])
         else:
-            host_port = netloc, 80
+            self.host_port = netloc, 80
         try:
-            print "\t" "connect to %s:%d" % host_port
+            print "\t" "connect to %s:%d" % self.host_port
             self.log_request(200)
             self.wfile.write(self.protocol_version +
                              " 200 Connection established\r\n")
@@ -36,11 +36,15 @@ class ProxyHandler (httpServer.pyProxyHTTPRequestHandler):
         debug = 0
         #if (len(self.path)>5) and (self.path[:5] == "/http"):
         #    self.path = self.path[1:]
-        (scm, netloc, path, params, query, fragment) = urlparse.urlparse(self.path, 'http')
-        if scm != 'http' or fragment or not netloc:
+        self.ppath = urlparse.urlparse(self.path, 'http')
+        if self.ppath.port:
+            self.rport = int(self.ppath.port)
+        else:
+            self.rport = 80
+        if self.ppath.scheme != 'http' or self.ppath.fragment or not self.ppath.netloc:
             self.send_error(400, "bad url %s" % self.path)
             return
-        if netloc == 'debug.net':
+        if self.ppath.hostname == 'debug.net':
             debug_server.do_debug(path, query, self.wfile, self.req_queue, self.send_error)
             return
         if debug:
@@ -48,29 +52,23 @@ class ProxyHandler (httpServer.pyProxyHTTPRequestHandler):
             self.headers.headers.append("Host:%s"%netloc)
         #soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #try:
-        i = netloc.find(':')
-        if i == -1 :
-            port= 80
-            host = netloc
-        else:
-            port = int(netloc[i+1:])
-            host = netloc[:i]
         self.log_request()
         del self.headers['Connection']
         del self.headers['Proxy-Connection']
         self.headers.headers.append('Connection:close\r\n')
         header = ''.join(self.headers.headers)
-        if query :
-            path += '?'
-            path += query
-        request = '%s %s %s\r\n%s\r\n'%(self.command, path, self.request_version, header)
+        self.rpath = self.ppath.path
+        if self.ppath.query :
+            self.rpath += '?'
+            self.rpath += self.ppath.query
+        self.request = '%s %s %s\r\n%s\r\n'%(self.command, self.rpath, self.request_version, header)
         data = ''
         if self.command in ['POST']:
             i = int(self.headers.getheader('Content-Length'))
             data = self.rfile.read(i)
-        request += data
-        print repr(self.headers.headers)
-        proxy.proxy((host,port), self.connection, self.send_error, request, self.req_queue)
+        self.request += data
+        self.do_http()
+        #proxy.proxy((host,port), self.connection, self.send_error, request, self.req_queue)
         #if recv :
         #    self.wfile.write(recv)
         #todo

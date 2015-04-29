@@ -150,14 +150,14 @@ class pyProxyHTTPRequestHandler(SocketServer.StreamRequestHandler):
                 # An error code has been sent, just exit
                 return
             if self.command == 'CONNECT':
-                if not hasattr(self, 'do_CONNECT'):
-                    self.send_error(501, "Unsupported method CONNECT (do not has https tunnel)" )
-                    return
+                #if not hasattr(self, 'do_CONNECT'):
+                    #self.send_error(501, "Unsupported method CONNECT (do not has https tunnel)" )
+                    #return
+                #use hasattr() will cost lots of time, and i don't want to use it
                 self.do_CONNECT()
-                self.wfile.flush() #actually send the response if not already done.
             elif self.command:
                 self.do_GET()
-                self.wfile.flush() #actually send the response if not already done.
+            self.wfile.flush() #actually send the response if not already done.
         except socket.timeout, e:
             #a read or a write timed out.  Discard this connection
             self.log_error("Request timed out: %r", e)
