@@ -3,6 +3,7 @@
 import unittest
 import proxy
 import Queue
+import SocketServer
 
 class TestGlobalFunctions(unittest.TestCase):
 
