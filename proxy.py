@@ -46,9 +46,6 @@ def read_write(host, conn, err_func, request="", max_idling=20):
             err_func(404 ,"Request Time Out -- by pyProxy")
             return 0
         return rec
-    #except:
-    #    err_func(400,"Unkwon -- by pyProxy")
-    #    return 0
     print 'input ===\n%s\n'%istr
     print 'output ===\n%s\n'%ostr
     return rec
