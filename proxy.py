@@ -55,9 +55,10 @@ def read_write(host, conn, err_func, request="", max_idling=20):
 
 class proxy(proxyHandler.ProxyHandler):
     def do_http(self):
-        print "proxying %s on port %s"%(self.ppath.hostname, self.ppath.port)
+        self.rep_data = ""
+        print "proxying %s on port %s"%self.host_and_port
         try:
-            soc = socket.create_connection((self.ppath.hostname, int(self.ppath.port)))
+            soc = socket.create_connection(self.host_and_port)
             soc.send(self.request)
             fd = soc.makefile()
             data = fd.readline()
@@ -78,7 +79,6 @@ class proxy(proxyHandler.ProxyHandler):
                 while buf != '':
                     buf = soc.read(1024)
                     data += buf
-    
         except socket.timeout,err:
             if data == "":
                 self.send_error(404 ,"Request Time Out :%s -- by pyProxy"%repr(err))
@@ -87,8 +87,9 @@ class proxy(proxyHandler.ProxyHandler):
             print repr(err)
             self.send_error(400,"Unkwon: %s -- by pyProxy"%repr(err))
             return 0
+        self.rep_data = data
         self.wfile.write(data)
-        self.req_queue.put((request,data))
+        self.req_queue.put((self.request,data))
         return
 
        

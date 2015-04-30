@@ -37,10 +37,6 @@ class ProxyHandler (httpServer.pyProxyHTTPRequestHandler):
         #if (len(self.path)>5) and (self.path[:5] == "/http"):
         #    self.path = self.path[1:]
         self.ppath = urlparse.urlparse(self.path, 'http')
-        if self.ppath.port:
-            self.rport = int(self.ppath.port)
-        else:
-            self.rport = 80
         if self.ppath.scheme != 'http' or self.ppath.fragment or not self.ppath.netloc:
             self.send_error(400, "bad url %s" % self.path)
             return
@@ -50,29 +46,33 @@ class ProxyHandler (httpServer.pyProxyHTTPRequestHandler):
         if debug:
             del self.headers["Host"]
             self.headers.headers.append("Host:%s"%netloc)
+        #set port
+        if self.ppath.port:
+            rport = int(self.ppath.port)
+        else:
+            rport = 80
+        self.host_and_port = (self.ppath.hostname, rport)
         #soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #try:
         self.log_request()
+        #modify headers
         del self.headers['Connection']
         del self.headers['Proxy-Connection']
         self.headers.headers.append('Connection:close\r\n')
         header = ''.join(self.headers.headers)
-        self.rpath = self.ppath.path
-        if self.ppath.query :
-            self.rpath += '?'
-            self.rpath += self.ppath.query
+        #generate request path
+        self.rpath = urlparse.urlunparse(("", "", self.ppath.path, self.ppath.params, self.ppath.query, self.ppath.fragment))
+        #gen requset str
         self.request = '%s %s %s\r\n%s\r\n'%(self.command, self.rpath, self.request_version, header)
+        #get requset data
         data = ''
-        if self.command in ['POST']:
+        if self.headers.has_key('Content-Length'):
             i = int(self.headers.getheader('Content-Length'))
             data = self.rfile.read(i)
         self.request += data
+        #do the http proxy
         self.do_http()
         #proxy.proxy((host,port), self.connection, self.send_error, request, self.req_queue)
-        #if recv :
-        #    self.wfile.write(recv)
-        #todo
-        #finally:
         print "\t" "bye"
         #soc.close()
         #self.connection.close()
