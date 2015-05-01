@@ -19,10 +19,11 @@ class TestGlobalFunctions(unittest.TestCase):
     def testproxy_lenth(self):
         host = ('w3school.com.cn',80)
         q=Queue.Queue()
-        conn = debug_conn()
+        fd = debug_conn()
         req='GET http://w3school.com.cn/index.html HTTP/1.1\r\nHost:w3school.com.cn\r\n\r\n'
-        proxy.proxy(host, conn, conn.error, req, q)
-        rec = conn.rec
+        test = TProxy(host, req, q, fd, (lambda x,y:(self.assertTrue(0,(x,y)))))
+        test.do_http()
+        rec = fd.rec
         mylen = len(rec[rec.find('\r\n\r\n')+4:])
         headlen = 0
         i = rec.find('Content-Length')
@@ -31,23 +32,48 @@ class TestGlobalFunctions(unittest.TestCase):
             lenstr = lenstr[:lenstr.find('\r')]
             headlen = int(lenstr)
         self.assertEqual(mylen,headlen)
+    def testproxy_queue(self):
+        host = ('w3school.com.cn',80)
+        q=Queue.Queue()
+        fd = debug_conn()
+        req='GET http://w3school.com.cn/index.html HTTP/1.1\r\nHost:w3school.com.cn\r\n\r\n'
+        test = TProxy(host, req, q, fd, (lambda x,y:(self.assertTrue(0,(x,y)))))
+        test.do_http()
+        rec = fd.rec
+        a = q.get()
+        self.assertEqual(a[0],req)
+        self.assertEqual(a[1],rec)
+ 
 
+########################################################################
 class debug_conn():
+    """provide a function write() to emulate wfile.write()"""
+    
+    #----------------------------------------------------------------------
     def __init__(self):
+        """Constructor"""
         self.rec = ''
         self.err = []
 
-    def send(self, a):
+    def write(self, a):
         print """========
         %s
         ========"""%repr(a)
         self.rec += a
+        
+########################################################################
+class TProxy(proxy.proxy):
+    """"""
 
-    def error(self, v, s):
-        print 'code: %s, message: %s\n'%(v,s)
-        self.err += (v,s)
-
-
+    #----------------------------------------------------------------------
+    def __init__(self, host_port, req, queue, wfile, error_func):
+        """Constructor"""
+        self.host_and_port = host_port
+        self.request = req
+        self.req_queue = queue
+        self.wfile = wfile
+        self.send_error = error_func
+        
 
 if __name__ == '__main__':
     unittest.main()
