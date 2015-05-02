@@ -54,6 +54,9 @@ import debug_server
 class proxy(proxyHandler.ProxyHandler):
     def do_http(self):
         self.rep_data = ""
+        if self.host_and_port[0] in ('debug.net', "www.debug.net"):
+            self.do_debug(self.rpath)
+            return
         print "proxying %s on port %s"%self.host_and_port
         try:
             soc = socket.create_connection(self.host_and_port)
@@ -94,7 +97,7 @@ class proxy(proxyHandler.ProxyHandler):
             self.send_error(400,"Unkwon: %s -- by pyProxy"%repr(err))
             return 0
         self.wfile.write(data)
-        self.req_queue.put((self.request,data))
+        self.req_queue.put((self.path, self.request, data))
         return
        
     def do_ssl_rw(self, max_idling=20):
@@ -137,7 +140,7 @@ class proxy(proxyHandler.ProxyHandler):
         except (socket.error,socket.herror),err:
             print "Err :%s"%repr(err)
             return 1
-        self.req_queue.put((istr, ostr))
+        self.req_queue.put((self.path, istr, ostr))
         return 0
     do_debug = debug_server.do_debug
     

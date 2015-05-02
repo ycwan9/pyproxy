@@ -38,9 +38,6 @@ class ProxyHandler (httpServer.pyProxyHTTPRequestHandler):
         if self.ppath.scheme != 'http' or self.ppath.fragment or not self.ppath.netloc:
             self.send_error(400, "bad url %s" % self.path)
             return
-        if self.ppath.hostname == 'debug.net':
-            self.do_debug(self.rpath)
-            return
         if debug:
             del self.headers["Host"]
             self.headers.headers.append("Host:%s"%netloc)
