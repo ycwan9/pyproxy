@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import httpServer, select, socket, urlparse, httplib
-import handler
+#import handler
 import Queue
 import proxy
 
@@ -18,5 +18,5 @@ if __name__ == '__main__':
         httpd = httpServer.ThreadingProxyHTTPServer(('0.0.0.0',port), proxy.proxy)
         try:
             httpd.serve_forever()
-        except KeyboardInterrupt,err:
-            print 'bye bye\nExit by Keyboard Interrupt'%repr(err)
+        except KeyboardInterrupt:
+            print 'bye bye\nExit by Keyboard Interrupt'

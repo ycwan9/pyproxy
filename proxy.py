@@ -105,9 +105,7 @@ class proxy(proxyHandler.ProxyHandler):
         try:
             soc = socket.create_connection(self.host_and_port)
             self.wfile.write(self.protocol_version +
-                             " 200 Connection established\r\n")
-            self.wfile.write("Proxy-agent: %s\r\n" % self.version_string())
-            self.wfile.write("\r\n")
+                             " 200 Connection established\r\nProxy-agent: %s\r\n\r\n"%self.version_string())
             count = 0
             istr = '' #the input of the client's data log
             ostr = '' #the server's input(output to the client) data log
